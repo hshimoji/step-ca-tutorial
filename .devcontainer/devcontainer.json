@@ -1,0 +1,3 @@
+{
+	"postCreateCommand": "/workspaces/step-ca-tutorial/.devcontainer/post-create.sh"
+}

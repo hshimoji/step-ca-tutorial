@@ -1,3 +1,7 @@
 */certs
 */config
 */db
+**/initial-certs
+**/secrets
+**/letsencript
+!**/letsencrypt/**/.keep

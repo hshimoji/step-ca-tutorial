@@ -1,0 +1,53 @@
+# List recipes (just --list)
+default:
+    @just --list
+
+# Clean up artifacts
+cleanup:
+    docker-compose -f ./compose-step-ca.yml down
+    docker-compose -f ./compose-nginx.yml down
+    rm -f config/*
+    rm -f certs/*
+    rm -f db/*
+    sudo rm -fr letsencrypt
+    mkdir -p letsencrypt/etc/letsencrypt
+    rm -f nginx/initial-certs/*
+    rm -f secrets/*
+
+# Lunach a container for tutorial-02
+container container:
+    docker-compose -f $(pwd)/compose-{{container}}.yml up
+
+# Launch a shell in the container
+shell container:
+    docker exec -it tu02-{{container}} sh -c "bash || sh"
+
+# Initialize the Step CA with JWK provisioner. This task must be run inside the Step CA container.
+init-ca:
+    @mkdir -p ./secrets
+    step crypto rand 2 > ./secrets/ca-password
+    step ca init \
+    --name "tutorial-02 CA" \
+    --dns "localhost" \
+    --deployment-type standalone \
+    --address ":9000" \
+    --provisioner "admin" \
+    --password-file ./secrets/ca-password
+
+# Launch the Step CA server. This task must be run inside the Step CA container
+launch-ca:
+    step-ca /home/step/config/ca.json \
+        --password-file /home/step/secrets/ca-password
+
+# Add ACME provisioner
+add-acme-provisioner:
+    step ca provisioner add tutorial-02-acme \
+        --type ACME \
+        --ca-config /home/step/config/ca.json
+    if pgrep step-ca > /dev/null 2>&1 ; then \
+        kill -1 `pgrep step-ca` ; \
+    fi
+
+# Setup Let's Encrypt directory structure and initial certs
+setup-le:
+    ./scripts/setup-le.sh

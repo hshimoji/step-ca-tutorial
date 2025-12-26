@@ -1,0 +1,90 @@
+services:
+#  tu02-nginx:
+#    image: nginx:alpine
+#    container_name: tu02-nginx
+#    network_mode: host
+#    volumes:
+#      - ./nginx/html:/usr/share/nginx/html
+#      - ./nginx/conf/default.conf:/etc/nginx/conf.d/default.conf:ro
+#      - ./nginx/initial-certs:/tmp/initial-certs:ro
+#      - certs_data:/etc/letsencrypt
+#    entrypoint:
+#      - /bin/sh
+#      - -c
+#      - |
+#        apk add --no-cache inotify-tools
+#
+#        mkdir -p /etc/letsencrypt/live/localhost
+#
+#        echo "Copying initial manual certificates..."
+#        cp /tmp/initial-certs/fullchain.pem /etc/letsencrypt/live/localhost/fullchain.pem
+#        cp /tmp/initial-certs/privkey.pem /etc/letsencrypt/live/localhost/privkey.pem
+#
+#        echo "Starting Nginx..."
+#        nginx -g "daemon off;" &
+#        NGINX_PID=$$!
+#
+#        echo "Starting certificate watcher..."
+#        while kill -0 $$NGINX_PID; do
+#          if inotifywait -e close_write -t 60 /etc/letsencrypt/live/localhost/fullchain.pem > /dev/null 2>&1; then
+#             echo "Certificate updated by Certbot. Reloading Nginx..."
+#             nginx -s reload
+#          fi
+#        done
+
+  # ACMEクライアント
+  tu02-certbot:
+    image: certbot/certbot
+    container_name: tu02-certbot
+    network_mode: host
+    volumes:
+      - /usr/local/bin/just:/usr/local/bin/just:ro
+      - ./justfile:/home/step/justfile:ro
+      - ./letsencrypt/etc/letsencrypt:/etc/letsencrypt
+      - ./letsencrypt/var/log/letsencrypt:/var/log/letsencrypt
+      - ./nginx/conf/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/html:/usr/share/nginx/html
+      - ./scripts:/home/step/scripts:ro
+#      - certs_data:/etc/letsencrypt
+      - ./certs:/cacerts
+    environment:
+      # 初回は手動証明書があるので、強制更新(force)モードで上書き確認を行う
+      - ACME_ACTION=force
+      - REQUESTS_CA_BUNDLE=/cacerts/root_ca.crt
+    entrypoint: 
+      - /bin/sh
+      - -c
+      - |
+        apk add --no-cache netcat-openbsd
+
+        echo "Waiting for Nginx to be ready on port 80..."
+        for i in $$(seq 1 60); do
+          if nc -z localhost 80; then
+            echo "Nginx is up!"
+            break
+          fi
+          sleep 1
+        done
+        sleep 3
+        
+        CERTBOT_ARGS="--webroot --webroot-path /usr/share/nginx/html --server https://localhost:9000/acme/tutorial-02-acme/directory --domain localhost --email admin@example.com --agree-tos --no-eff-email --verbose --non-interactive --force-renewal --cert-name localhost --deploy-hook /home/step/scripts/certbot-deploy-hook.sh"
+
+        if [ "$$ACME_ACTION" = "reset" ]; then
+            echo ">>> RESET MODE"
+            # 注意: リセットモードでもNginx側が初期証明書をコピーしてくるので起動は可能です
+            rm -rf /etc/letsencrypt/live/*
+            rm -rf /etc/letsencrypt/archive/*
+            rm -rf /etc/letsencrypt/renewal/*
+        elif [ "$$ACME_ACTION" = "force" ]; then
+            echo ">>> FORCE MODE"
+            CERTBOT_ARGS="$$CERTBOT_ARGS --force-renewal"
+        fi
+
+        echo "Executing Certbot (ACME Mode)..."
+        # Ensure deploy-hook script is executable (mounted read-only from host but we can chmod the file inside container)
+        chmod +x /home/step/scripts/certbot-deploy-hook.sh || true
+        ls -l /home/step/scripts/certbot-deploy-hook.sh || true
+        certbot certonly $$CERTBOT_ARGS
+
+#volumes:
+#  certs_data:

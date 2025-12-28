@@ -8,7 +8,7 @@ Repository layout
 
 - [tutorial-01](tutorial-01)  — Basic CA using the default `admin` (JWK) provisioner and issuing a server certificate.
 - [tutorial-02](tutorial-02)  — ACME provisioner: learn ACME basics and use an ACME client (certbot) to obtain a server certificate.
-- [tutorial-03](tutorial-03)  — OIDC provisioner: obtain certificates using Google Workspace accounts via OIDC.
+- [tutorial-03](tutorial-03)  — OIDC provisioner: obtain user certificates (client certificates for people) using Google Workspace accounts via OIDC.
 - [tutorial-04](tutorial-04)  — KMS-managed keys: store and use root/intermediate CA private keys in Google Cloud KMS.
 
 What you will learn
@@ -29,8 +29,8 @@ Tutorial summaries
   - Good for: understanding ACME flows, integrating existing ACME clients, and automated certificate issuance/renewal.
 
 - tutorial-03 — OIDC provisioner (Google Workspace)
-  - Goal: Configure an OIDC provisioner backed by Google Workspace (or other OIDC providers) so identities from your org can request certificates.
-  - Good for: teams that want certificate issuance tied to identity providers and single-sign on.
+  - Goal: Configure an OIDC provisioner backed by Google Workspace (or other OIDC providers) so identities from your org can request user certificates (client certificates for people).
+  - Good for: teams that want certificate issuance tied to identity providers and single-sign on. Note: OIDC provisioners issue certificates for people (user/client authentication), not for servers.
 
 - tutorial-04 — Cloud KMS key management
   - Goal: Protect root and intermediate private keys using Google Cloud KMS. Learn how to configure step-ca to use KMS-backed keys instead of locally stored private keys.

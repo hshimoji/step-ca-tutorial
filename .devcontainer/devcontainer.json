@@ -1,3 +1,44 @@
 {
-	"postCreateCommand": "/workspaces/step-ca-tutorial/.devcontainer/post-create.sh"
+	"name": "Step CA Tutorial",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {
+			"enableNonRootDocker": "true",
+			"moby": "true",
+			"azureDnsAutoDetection": "true",
+			"installDockerBuildx": "true",
+			"version": "latest",
+			"dockerDashComposeVersion": "v2"
+		},
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"installZsh": "false",
+			"configureZshAsDefaultShell": "false",
+			"installOhMyZsh": "false",
+			"upgradePackages": "false",
+			"username": "vscode",
+			"userUid": "1000",
+			"userGid": "1000"
+		}
+	},
+	"mounts": [
+		"source=step-ca-tmp,target=/tmp/step-ca,type=volume"
+	],
+	"initializeCommand": "docker volume create step-ca-tmp || true && docker run --rm -v step-ca-tmp:/data busybox chmod 1777 /data",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-azuretools.vscode-docker",
+				"timonwong.shellcheck",
+				"foxundermoon.shell-format",
+				"skellock.just",
+				"tamasfe.even-better-toml",
+				"redhat.vscode-yaml",
+				"esbenp.prettier-vscode",
+				"bierner.markdown-mermaid"
+			]
+		}
+	},
+	"remoteUser": "vscode"
 }

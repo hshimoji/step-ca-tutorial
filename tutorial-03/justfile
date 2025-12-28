@@ -1,0 +1,44 @@
+# List recipes (just --list)
+default:
+    @just --list
+
+# Clean up artifacts
+cleanup:
+    docker-compose -f ./compose.yml down
+    rm -f config/*
+    rm -f certs/*
+    rm -f db/*
+    rm -f secrets/*
+
+# Launch a container for tutorial-03
+container container="step-ca":
+    docker-compose -f $(pwd)/compose-{{container}}.yml up
+
+# Launch a shell in the container
+shell container="step-ca":
+    docker exec -it tu03-{{container}} sh -c "bash || sh"
+
+# Initialize the Step CA with JWK provisioner. This task must be run inside the Step CA container.
+init-ca:
+    @mkdir -p ./secrets
+    step crypto rand 2 > ./secrets/ca-password
+    step ca init \
+    --name "tutorial-03 CA" \
+    --dns "localhost" \
+    --deployment-type standalone \
+    --address ":9000" \
+    --provisioner "admin" \
+    --password-file ./secrets/ca-password
+
+# Launch the Step CA server. This task must be run inside the Step CA container
+launch-ca:
+    step-ca /home/step/config/ca.json \
+        --password-file /home/step/secrets/ca-password
+
+# Add OIDC provisioner (set CLIENT_ID and CLIENT_SECRET in env first)
+add-oidc-provisioner:
+    ./scripts/add-oidc-provisioner.sh
+
+# Issue a user certificate using OIDC provisioner (subject is used for filename only)
+issue-cert subject="user":
+    ./scripts/issue-cert.sh {{subject}}

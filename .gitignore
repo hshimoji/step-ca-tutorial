@@ -5,3 +5,4 @@
 **/secrets
 **/letsencript
 !**/letsencrypt/**/.keep
+.claude

@@ -1,0 +1,5 @@
+# Ignore runtime and secret artifacts
+secrets/
+certs/
+db/
+config/

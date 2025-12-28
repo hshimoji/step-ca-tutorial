@@ -9,6 +9,7 @@ Repository layout
 - [tutorial-01](tutorial-01)  — Basic CA using the default `admin` (JWK) provisioner and issuing a server certificate.
 - [tutorial-02](tutorial-02)  — ACME provisioner: learn ACME basics and use an ACME client (certbot) to obtain a server certificate.
 - [tutorial-03](tutorial-03)  — OIDC provisioner: obtain certificates using Google Workspace accounts via OIDC.
+- tutorial-03 directory added with compose, scripts, and example `just` targets for OIDC-based issuance.
 - [tutorial-04](tutorial-04)  — KMS-managed keys: store and use root/intermediate CA private keys in Google Cloud KMS.
 
 What you will learn

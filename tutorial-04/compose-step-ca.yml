@@ -1,0 +1,29 @@
+services:
+  tu04-step-ca:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tu04-step-ca
+    stdin_open: true
+    tty: true
+    network_mode: host
+    ports:
+      - 9000:9000
+    volumes:
+      - /usr/local/bin/just:/usr/local/bin/just:ro
+      - ./justfile:/home/step/justfile:rw
+      - ./certs:/home/step/certs:rw
+      - ./config:/home/step/config:rw
+      - ./db:/home/step/db:rw
+      - ./scripts:/home/step/scripts:rw
+      - ./secrets:/home/step/secrets:rw
+      - ./gcp-credentials.json:/home/step/gcp-credentials.json:ro
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/home/step/gcp-credentials.json
+      # If using KMS plugin, set the plugin path
+      - STEPPATH=/home/step
+      # GCP configuration (passed from host)
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
+      - GCP_LOCATION=${GCP_LOCATION:-us-west2}
+      - GCP_KEYRING=${GCP_KEYRING}
+    command: /bin/sh

@@ -15,12 +15,19 @@ This tutorial demonstrates how to configure Smallstep Certificate Authority (ste
 ## Architecture
 
 ```mermaid
+%%{init: {"themeVariables":{"nodeBkg":"#fff3e0","nodeTextColor":"#000","edgeColor":"#e6bfa0"}}}%%
 graph TD
     User((User))
     Browser["Web Browser"]
     CLI[step CLI]
     CA[Step CA]
     OIDC["OIDC Provider<br/>(Google Workspace)"]
+
+    style User fill:#fff3e0,stroke:#e6bfa0,stroke-width:1px,color:#000
+    style Browser fill:#fff3e0,stroke:#e6bfa0,stroke-width:1px,color:#000
+    style CLI fill:#fff3e0,stroke:#e6bfa0,stroke-width:1px,color:#000
+    style CA fill:#fff3e0,stroke:#e6bfa0,stroke-width:1px,color:#000
+    style OIDC fill:#fff3e0,stroke:#e6bfa0,stroke-width:1px,color:#000
 
     User --> CLI
     User -->|credentials| Browser
@@ -42,6 +49,7 @@ graph TD
 ## Sequence
 
 ```mermaid
+%%{init: {"themeVariables":{"actorBkg":"#fff3e0","actorTextColor":"#000","actorBorder":"#e6bfa0"}}}%%
 sequenceDiagram
     autonumber
     participant U as User

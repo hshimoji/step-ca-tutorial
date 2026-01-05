@@ -27,12 +27,30 @@ RUN ARCH=$(uname -m) && \
     chown root:root /usr/local/bin/step* && \
     rm -f *.tar.gz
 
+# Install step-kms-plugin for Cloud KMS support
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then \
+    STEP_ARCH="amd64"; \
+    elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then \
+    STEP_ARCH="arm64"; \
+    else \
+    echo "Unsupported architecture: $ARCH"; \
+    exit 1; \
+    fi && \
+    PLUGIN_VERSION="0.16.0" && \
+    curl -L "https://github.com/smallstep/step-kms-plugin/releases/download/v${PLUGIN_VERSION}/step-kms-plugin_${PLUGIN_VERSION}_linux_${STEP_ARCH}.tar.gz" -o /tmp/step-kms-plugin.tar.gz && \
+    tar -xzf /tmp/step-kms-plugin.tar.gz -C /tmp && \
+    mv /tmp/step-kms-plugin_${PLUGIN_VERSION}/step-kms-plugin /usr/local/bin/ && \
+    chmod +x /usr/local/bin/step-kms-plugin && \
+    rm -rf /tmp/step-kms-plugin*
+
 # Install Google Cloud CLI and jq
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
     apt-get update && apt-get install -y --no-install-recommends \
     jq \
     google-cloud-cli \
+    libpcsclite1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Setup completions

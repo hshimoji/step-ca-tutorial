@@ -1,0 +1,44 @@
+# List recipes (just --list)
+default:
+    @just --list
+
+# Clean up artifacts
+cleanup:
+    docker-compose -f ./compose-step-ca.yml down
+    rm -rf config/*
+    rm -rf certs/*
+    rm -rf db/*
+    rm -rf secrets/*
+
+# Launch a container for tutorial-04
+container container="step-ca":
+    docker-compose -f $(pwd)/compose-{{container}}.yml up
+
+# Launch a shell in the container
+shell container="step-ca":
+    docker exec -it tu04-{{container}} sh -c "bash || sh"
+
+# Create GCP service account and download credentials. Run on host machine.
+# Optional: Specify service account name (default: step-ca-kms-RANDOM)
+setup-service-account sa_name="":
+    ./scripts/setup-service-account.sh {{sa_name}}
+
+# Initialize the Step CA with GCP KMS-backed keys. This task must be run inside the Step CA container.
+# Requires GCP_PROJECT_ID, GCP_LOCATION, GCP_KEYRING environment variables to be set.
+init-ca:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ./scripts/init-ca-kms.sh
+
+# Launch the Step CA server. This task must be run inside the Step CA container
+launch-ca:
+    step-ca /home/step/config/ca.json \
+        --password-file /home/step/secrets/ca-password
+
+# Issue a server certificate using the admin provisioner
+issue-cert domain="localhost":
+    ./scripts/issue-cert.sh {{domain}}
+
+# Verify KMS integration
+verify-kms:
+    ./scripts/verify-kms.sh

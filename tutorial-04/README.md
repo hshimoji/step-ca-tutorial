@@ -28,13 +28,23 @@ This tutorial demonstrates how to configure Smallstep Certificate Authority (ste
 ## Architecture
 
 ```mermaid
+%%{init: {"themeVariables":{"nodeBkg":"#fff3e0","nodeTextColor":"#000","edgeColor":"#e6bfa0"}}}%%
 graph TD
+    User((User))
     Client[step CLI]
     CA[step-ca]
     KMS[Cloud KMS]
     RootKey[Root CA Key]
     IntKey[Intermediate CA Key]
 
+    style User fill:#fff3e0,stroke:#e6bfa0,stroke-width:1px,color:#000
+    style Client fill:#fff3e0,stroke:#e6bfa0,stroke-width:1px,color:#000
+    style CA fill:#fff3e0,stroke:#e6bfa0,stroke-width:1px,color:#000
+    style KMS fill:#fff3e0,stroke:#e6bfa0,stroke-width:1px,color:#000
+    style RootKey fill:#fff3e0,stroke:#e6bfa0,stroke-width:1px,color:#000
+    style IntKey fill:#fff3e0,stroke:#e6bfa0,stroke-width:1px,color:#000
+
+    User -->|init-ca / issue-cert| Client
     Client -->|csr / cert| CA
     CA <-->|sign / signature| KMS
     KMS --> RootKey
@@ -43,6 +53,7 @@ graph TD
 
 ### Component Roles
 
+- **User**: The administrator who operates the CA through the step CLI.
 - **step CLI**: The command-line client that requests certificates from the CA.
 - **step-ca**: The Certificate Authority server that processes certificate requests and coordinates with Cloud KMS for signing operations.
 - **Cloud KMS**: Google's cloud-based key management service that stores private keys and performs cryptographic signing operations.
@@ -52,6 +63,7 @@ graph TD
 ## Sequence
 
 ```mermaid
+%%{init: {"themeVariables":{"actorBkg":"#fff3e0","actorTextColor":"#000","actorBorder":"#e6bfa0"}}}%%
 sequenceDiagram
     autonumber
     participant U as User

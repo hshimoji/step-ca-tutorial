@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  tu01-step-ca:
+    image: smallstep/step-ca:latest
+    container_name: tu01-step-ca
+    stdin_open: true
+    tty: true
+    ports:
+      - 9000:9000
+    volumes:
+      - /usr/local/bin/just:/usr/local/bin/just:ro
+      - ./justfile:/home/step/justfile:ro
+      - ./certs:/home/step/certs:rw
+      - ./config:/home/step/config:rw
+      - ./db:/home/step/db:rw
+      - ./scripts:/home/step/scripts:ro
+      - ./secrets:/home/step/secrets:rw
+    command: /bin/sh

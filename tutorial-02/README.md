@@ -88,7 +88,7 @@ just add-acme-provisioner
 # verify the provisioner was added.
 step ca provisioner list
 # set up Let's Encrypt directory structure and initial certs
-step ca setup-le
+just setup-le
 ```
 
 If `step ca provisioner list` shows an ACME provisioner entry, the ACME endpoint is registered successfully.

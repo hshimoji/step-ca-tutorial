@@ -207,9 +207,8 @@ just setup-service-account my-custom-sa-name
 The script will:
 - Enable the Cloud KMS API
 - Create a Cloud KMS keyring (if it doesn't exist)
-- Create a service account with the following IAM roles (at keyring level):
-  - `roles/cloudkms.cryptoOperator` - For signing operations with KMS keys
-  - `roles/cloudkms.viewer` - For viewing public keys
+- Create a service account with the following IAM role (at keyring level):
+  - `roles/cloudkms.admin` - For creating and managing KMS keys and performing cryptographic operations
 - Download the service account key to `gcp-credentials.json` (in the tutorial-04 directory)
 
 **Important Notes**:
@@ -561,19 +560,13 @@ gcloud kms keyrings get-iam-policy $GCP_KEYRING \
   --format="table(bindings.role)"
 ```
 
-2. If the roles are missing, add them:
+2. If the role is missing, add it:
 ```bash
-# Add cryptoOperator role
+# Add admin role
 gcloud kms keyrings add-iam-policy-binding $GCP_KEYRING \
   --location=$GCP_LOCATION \
   --member="serviceAccount:YOUR_SA@$GCP_PROJECT_ID.iam.gserviceaccount.com" \
-  --role="roles/cloudkms.cryptoOperator"
-
-# Add viewer role
-gcloud kms keyrings add-iam-policy-binding $GCP_KEYRING \
-  --location=$GCP_LOCATION \
-  --member="serviceAccount:YOUR_SA@$GCP_PROJECT_ID.iam.gserviceaccount.com" \
-  --role="roles/cloudkms.viewer"
+  --role="roles/cloudkms.admin"
 ```
 
 ### KMS API not enabled

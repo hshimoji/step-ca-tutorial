@@ -80,6 +80,22 @@ gcloud kms keyrings add-iam-policy-binding "$GCP_KEYRING" \
   --role="roles/cloudkms.admin" \
   >/dev/null 2>&1 || true
 print_success "Granted roles/cloudkms.admin"
+
+# Cloud KMS Crypto Operator (for cryptographic operations)
+gcloud kms keyrings add-iam-policy-binding "$GCP_KEYRING" \
+  --location="$GCP_LOCATION" \
+  --member="serviceAccount:${SA_EMAIL}" \
+  --role="roles/cloudkms.cryptoOperator" \
+  >/dev/null 2>&1 || true
+print_success "Granted roles/cloudkms.cryptoOperator"
+
+# Cloud KMS Viewer (for viewing keys and keyrings)
+gcloud kms keyrings add-iam-policy-binding "$GCP_KEYRING" \
+  --location="$GCP_LOCATION" \
+  --member="serviceAccount:${SA_EMAIL}" \
+  --role="roles/cloudkms.viewer" \
+  >/dev/null 2>&1 || true
+print_success "Granted roles/cloudkms.viewer"
 echo ""
 
 # Check service account key quota
